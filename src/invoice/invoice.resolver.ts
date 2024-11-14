@@ -16,6 +16,7 @@ import {
   GetInvoiceSuccess,
   GetInvoiceUnion,
 } from './models/getById/get.invoice';
+import {GetInvoicesByClientArgs} from "./dto/get.by.client.args";
 
 @Resolver(() => InvoiceModel)
 export class InvoiceResolver {
@@ -40,10 +41,9 @@ export class InvoiceResolver {
     }
   }
 
-  @UseFilters(new HttpExceptionFilter(CreateInvoiceFailure))
   @Mutation(() => CreateInvoiceUnion)
   public async createInvoice(
-    @Args('args', { type: () => CreateInvoiceArgs }) args: CreateInvoiceArgs,
+      @Args('args', { type: () => CreateInvoiceArgs }) args: CreateInvoiceArgs,
   ) {
     try {
       const data = await this.service.create(args);
@@ -57,4 +57,14 @@ export class InvoiceResolver {
       return new CreateInvoiceFailure({ message: e.message });
     }
   }
+
+
+  @Query(() => [InvoiceModel], { description: 'Get invoices by client ID' })
+  @UseFilters(new HttpExceptionFilter(CreateInvoiceFailure))
+  public async getInvoicesByClient(
+      @Args('args', { type: () => GetInvoicesByClientArgs }) args: GetInvoicesByClientArgs,
+  ): Promise<InvoiceModel[]> {
+    return this.service.findByClientId(args.clientId);
+  }
+
 }

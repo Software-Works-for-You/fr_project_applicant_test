@@ -2,6 +2,23 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type ClientModel {
+  created_at: DateTime
+  updated_at: DateTime
+  deleted_at: DateTime
+  id: String!
+  name: String!
+  email: String!
+
+  """Invoices linked to this client"""
+  invoices: [InvoiceModel!]
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type InvoiceLineItemsModel {
   description: String!
   amount: Float!
@@ -14,19 +31,18 @@ type InvoiceModel {
   created_at: DateTime
   updated_at: DateTime
   deleted_at: DateTime
-  id: Int!
+  id: String!
   name: String!
   status: String!
   quote_number: String!
   line_items: [InvoiceLineItemsModel!]!
   issued_at: DateTime
   customer_data: JSON
-}
 
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
+  """Client associated with this invoice"""
+  client: ClientModel!
+  client_id: String!
+}
 
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
@@ -41,6 +57,11 @@ type Alert {
 
 type Query {
   getQuote(args: GetByIdArgs!): GetInvoiceById!
+
+  """Get invoices by client ID"""
+  getInvoicesByClient(args: GetInvoicesByClientArgs!): [InvoiceModel!]!
+  clients: [ClientModel!]!
+  client(id: String!): ClientModel!
 }
 
 union GetInvoiceById = GetInvoiceSuccess | GetInvoiceFailure
@@ -82,11 +103,18 @@ interface IFailure {
 }
 
 input GetByIdArgs {
-  id: Int!
+  id: String!
+}
+
+input GetInvoicesByClientArgs {
+  clientId: String!
 }
 
 type Mutation {
   createInvoice(args: CreateInvoiceArgs!): CreateInvoice!
+  createClient(data: CreateClientArgs!): ClientModel!
+  updateClient(id: String!, data: UpdateClientArgs!): ClientModel!
+  removeClient(id: String!): Boolean!
 }
 
 union CreateInvoice = CreateInvoiceSuccess | CreateInvoiceFailure
@@ -110,6 +138,7 @@ input CreateInvoiceArgs {
   name: String
   line_items: [LineItemsArgs!]
   customer_data: JSON
+  clientId: String!
 }
 
 input LineItemsArgs {
@@ -118,4 +147,14 @@ input LineItemsArgs {
   price: Float!
   units: Float!
   vat: Float!
+}
+
+input CreateClientArgs {
+  name: String!
+  email: String!
+}
+
+input UpdateClientArgs {
+  name: String
+  email: String
 }

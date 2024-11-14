@@ -1,5 +1,5 @@
 import { Field, FieldOptions, InputType } from '@nestjs/graphql';
-import { IsOptional } from 'class-validator';
+import {IsOptional, IsString} from 'class-validator';
 import { LineItemsArgs } from './line.item.args';
 import GraphQLJSON from 'graphql-type-json';
 
@@ -20,4 +20,8 @@ export class CreateInvoiceArgs {
   @Field(() => GraphQLJSON, { nullable: true, name: 'customer_data' })
   @IsOptional()
   customerData?: object;
+
+  @Field(() => String, { nullable: false })
+  @IsString()
+  clientId: string;
 }

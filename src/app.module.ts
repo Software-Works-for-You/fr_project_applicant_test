@@ -6,6 +6,9 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { InvoiceModule } from './invoice/invoice.module';
 import { ErrorCode } from './common/enum/error.code';
 import { DatabaseModule } from './database/postgres/modules/postgress.database';
+import {dataSource} from "./database/postgres/providers/database.providers";
+import {ClientModule} from "./client/client.module";
+import {TypeOrmModule} from "@nestjs/typeorm";
 
 registerEnumType(ErrorCode, {
   name: 'ErrorCode',
@@ -16,7 +19,14 @@ registerEnumType(ErrorCode, {
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
     }),
+    TypeOrmModule.forRootAsync({
+      useFactory: async () => ({
+        ...dataSource.options,
+        autoLoadEntities: true,
+      }),
+    }),
     InvoiceModule,
+    ClientModule,
     DatabaseModule,
   ],
   controllers: [AppController],
